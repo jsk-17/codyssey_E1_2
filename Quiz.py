@@ -13,7 +13,7 @@ class Quiz:
         self.question = question      # 문제 (str)
         self.choices = choices        # 선택지 (list, 4개)
         self.answer = answer          # 정답 번호 (1~4)
-        self.hint = hint              # 힌트 (보너스)
+        self.hint = hint              # 힌트
 
     def show(self):
         """문제와 선택지를 출력"""
@@ -152,16 +152,39 @@ class QuizGame:
             return
         quizzes = self.quizzes[:]
         random.shuffle(quizzes)  # 보너스: 랜덤 출제
-        score = 0
+        score = 0.0
         for quiz in quizzes:
             quiz.show()
-            ans = self.input_number("정답 번호를 입력하세요 (1~4): ", 1, 4)
+            used_hint = False  # 이 문제에서 힌트를 썼는지 여부
+
+            # 정답 입력 전, 0을 누르면 힌트 보기 가능
+            while True:
+                print("  (힌트 보기: 0 입력 / 정답 선택 전에만 가능)")
+                ans = self.input_number(
+                    "정답 번호를 입력하세요 (1~4, 힌트=0): ", 0, 4)
+                if ans == 0:
+                    if quiz.hint:
+                        print(f"💡 힌트: {quiz.hint}")
+                        used_hint = True  # 힌트 사용 기록
+                    else:
+                        print("이 문제에는 힌트가 없습니다.")
+                    continue  # 다시 정답 입력 받기
+                break  # 1~4 입력 시 반복 종료
+
             if quiz.is_correct(ans):
-                print("✅ 정답입니다!")
-                score += 1
+                # 힌트를 썼으면 0.5점, 안 썼으면 1점
+                gained = 0.5 if used_hint else 1.0
+                score += gained
+                if used_hint:
+                    print(f"✅ 정답입니다! (힌트 사용 → {gained}점)")
+                else:
+                    print(f"✅ 정답입니다! ({gained}점)")
             else:
                 print(f"❌ 오답입니다. 정답은 {quiz.answer}번입니다.")
-        print(f"\n총 {len(quizzes)}문제 중 {score}개 맞혔습니다!")
+
+        # 소수점이 .0이면 정수처럼 깔끔하게 출력
+        score_str = int(score) if score == int(score) else score
+        print(f"\n총 {len(quizzes)}문제 중 {score_str}점을 얻었습니다!")
         self.played = True
         if score > self.best_score:
             self.best_score = score
@@ -175,7 +198,9 @@ class QuizGame:
             c = self.input_text(f"선택지 {i}: ")
             choices.append(c)
         answer = self.input_number("정답 번호 (1~4): ", 1, 4)
-        self.quizzes.append(Quiz(question, choices, answer))
+        # 힌트 입력(선택): 비워두면 힌트 없음
+        hint = input("힌트를 입력하세요 (없으면 Enter): ").strip()
+        self.quizzes.append(Quiz(question, choices, answer, hint))
         self.save()
         print("✅ 퀴즈가 추가되었습니다.")
 
@@ -193,13 +218,11 @@ class QuizGame:
             print("삭제할 퀴즈가 없습니다.")
             return
 
-        # ① 목록 보여주기 (어떤 퀴즈를 지울지 선택)
         print(f"\n총 {len(self.quizzes)}개의 퀴즈가 있습니다.")
         for i, quiz in enumerate(self.quizzes, start=1):
             print(f"{i}. {quiz.question}")
         print("0. 취소")
 
-        # ② 삭제할 번호 입력 (0=취소 가능)
         num = self.input_number(
             f"삭제할 퀴즈 번호 (1~{len(self.quizzes)}, 0=취소): ",
             0, len(self.quizzes))
@@ -207,7 +230,6 @@ class QuizGame:
             print("삭제를 취소했습니다.")
             return
 
-        # ③ 삭제 전 재확인 (실수 방지)
         target = self.quizzes[num - 1]
         print(f"[{num}번] {target.question}")
         confirm = self.input_number(
@@ -216,10 +238,7 @@ class QuizGame:
             print("삭제를 취소했습니다.")
             return
 
-        # ④ 실제 삭제 (화면번호 num -> 리스트 인덱스 num-1)
         removed = self.quizzes.pop(num - 1)
-
-        # ⑤ 파일에 반영
         self.save()
         print(f"🗑 '{removed.question}' 퀴즈가 삭제되었습니다.")
 
@@ -227,7 +246,8 @@ class QuizGame:
         if not self.played:
             print("아직 퀴즈를 풀지 않았습니다.")
         else:
-            print(f"현재 최고 점수: {self.best_score}점")
+            best = int(self.best_score) if self.best_score == int(self.best_score) else self.best_score
+            print(f"현재 최고 점수: {best}점")
 
     # ---------- 메인 루프 ----------
     def run(self):
