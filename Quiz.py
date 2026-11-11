@@ -141,8 +141,9 @@ class QuizGame:
         print("1. 퀴즈 풀기")
         print("2. 퀴즈 추가")
         print("3. 퀴즈 목록")
-        print("4. 점수 확인")
-        print("5. 종료")
+        print("4. 퀴즈 삭제")
+        print("5. 점수 확인")
+        print("6. 종료")
 
     # ---------- 기능들 ----------
     def play_quiz(self):
@@ -186,6 +187,42 @@ class QuizGame:
         for i, quiz in enumerate(self.quizzes, start=1):
             print(f"{i}. {quiz.question}")
 
+    def delete_quiz(self):
+        """등록된 퀴즈를 선택해 삭제하고 파일에 반영"""
+        if not self.quizzes:
+            print("삭제할 퀴즈가 없습니다.")
+            return
+
+        # ① 목록 보여주기 (어떤 퀴즈를 지울지 선택)
+        print(f"\n총 {len(self.quizzes)}개의 퀴즈가 있습니다.")
+        for i, quiz in enumerate(self.quizzes, start=1):
+            print(f"{i}. {quiz.question}")
+        print("0. 취소")
+
+        # ② 삭제할 번호 입력 (0=취소 가능)
+        num = self.input_number(
+            f"삭제할 퀴즈 번호 (1~{len(self.quizzes)}, 0=취소): ",
+            0, len(self.quizzes))
+        if num == 0:
+            print("삭제를 취소했습니다.")
+            return
+
+        # ③ 삭제 전 재확인 (실수 방지)
+        target = self.quizzes[num - 1]
+        print(f"[{num}번] {target.question}")
+        confirm = self.input_number(
+            "정말 삭제하시겠습니까? (1=예, 0=아니오): ", 0, 1)
+        if confirm == 0:
+            print("삭제를 취소했습니다.")
+            return
+
+        # ④ 실제 삭제 (화면번호 num -> 리스트 인덱스 num-1)
+        removed = self.quizzes.pop(num - 1)
+
+        # ⑤ 파일에 반영
+        self.save()
+        print(f"🗑 '{removed.question}' 퀴즈가 삭제되었습니다.")
+
     def show_score(self):
         if not self.played:
             print("아직 퀴즈를 풀지 않았습니다.")
@@ -197,7 +234,7 @@ class QuizGame:
         while True:
             try:
                 self.show_menu()
-                choice = self.input_number("메뉴 선택 (1~5): ", 1, 5)
+                choice = self.input_number("메뉴 선택 (1~6): ", 1, 6)
                 if choice == 1:
                     self.play_quiz()
                 elif choice == 2:
@@ -205,8 +242,10 @@ class QuizGame:
                 elif choice == 3:
                     self.list_quizzes()
                 elif choice == 4:
-                    self.show_score()
+                    self.delete_quiz()
                 elif choice == 5:
+                    self.show_score()
+                elif choice == 6:
                     print("프로그램을 종료합니다. 안녕히 가세요!")
                     self.save()
                     break
