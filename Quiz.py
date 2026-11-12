@@ -142,7 +142,7 @@ class QuizGame:
             return raw
 
     # ---------- 메뉴 ----------
-        def show_menu(self):
+    def show_menu(self):
         print("\n===== 파이썬 기초 퀴즈 게임 =====")
         print("1. 퀴즈 풀기")
         print("2. 퀴즈 추가")
@@ -272,7 +272,7 @@ class QuizGame:
             print(f"현재 최고 점수: {best}점")
         
 
-        def show_history(self):   # 추가: 전체 게임 기록 조회
+    def show_history(self):   # 추가: 전체 게임 기록 조회
         """지금까지의 모든 게임 기록을 출력"""
         if not self.history:
             print("아직 게임 기록이 없습니다.")
@@ -286,7 +286,7 @@ class QuizGame:
             print(f"{i}. {rec['datetime']} | "
                   f"{rec['count']}문제 | {s_str}점")
     # ---------- 메인 루프 ----------
-        def run(self):
+    def run(self):
         while True:
             try:
                 self.show_menu()
