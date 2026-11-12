@@ -150,8 +150,17 @@ class QuizGame:
         if not self.quizzes:
             print("등록된 퀴즈가 없습니다.")
             return
+
         quizzes = self.quizzes[:]
         random.shuffle(quizzes)  # 보너스: 랜덤 출제
+
+        # 몇 문제를 풀지 선택 (1 ~ 전체 문제 수)
+        total = len(quizzes)
+        count = self.input_number(
+            f"몇 문제를 푸시겠습니까? (1~{total}): ", 1, total)
+        quizzes = quizzes[:count]  # 섞은 뒤 앞에서 count개만 선택
+        # 추가 끝
+
         score = 0.0
         for quiz in quizzes:
             quiz.show()
@@ -172,7 +181,6 @@ class QuizGame:
                 break  # 1~4 입력 시 반복 종료
 
             if quiz.is_correct(ans):
-                # 힌트를 썼으면 0.5점, 안 썼으면 1점
                 gained = 0.5 if used_hint else 1.0
                 score += gained
                 if used_hint:
@@ -184,7 +192,7 @@ class QuizGame:
 
         # 소수점이 .0이면 정수처럼 깔끔하게 출력
         score_str = int(score) if score == int(score) else score
-        print(f"\n총 {len(quizzes)}문제 중 {score_str}점을 얻었습니다!")
+        print(f"\n총 {len(quizzes)}문제 중 {score_str}점을 얻었습니다!")  # len(quizzes)가 선택한 문제 수로 자동 반영됨
         self.played = True
         if score > self.best_score:
             self.best_score = score
