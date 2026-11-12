@@ -2,6 +2,7 @@
 import json
 import os
 import random
+import datetime 
 
 STATE_FILE = "state.json"  # 프로젝트 루트에 저장
 
@@ -75,6 +76,7 @@ class QuizGame:
     def __init__(self):
         self.quizzes = []       # Quiz 객체 목록
         self.best_score = 0     # 최고 점수
+        self.history = []
         self.played = False     # 플레이 여부
         self.load()
 
@@ -84,24 +86,28 @@ class QuizGame:
         if not os.path.exists(STATE_FILE):
             self.quizzes = get_default_quizzes()
             self.best_score = 0
+            self.history = []
             return
         try:
             with open(STATE_FILE, "r", encoding="utf-8") as f:
                 data = json.load(f)
             self.quizzes = [Quiz.from_dict(q) for q in data["quizzes"]]
             self.best_score = data.get("best_score", 0)
+            self.history = data.get("history", [])
             if not self.quizzes:
                 self.quizzes = get_default_quizzes()
         except (json.JSONDecodeError, KeyError, OSError):
             print("⚠ 데이터 파일이 손상되어 기본 데이터로 복구합니다.")
             self.quizzes = get_default_quizzes()
             self.best_score = 0
+            self.history = [] 
 
     def save(self):
         """state.json에 저장 (UTF-8)"""
         data = {
             "quizzes": [q.to_dict() for q in self.quizzes],
             "best_score": self.best_score,
+            "history": self.history,
         }
         try:
             with open(STATE_FILE, "w", encoding="utf-8") as f:
@@ -136,15 +142,15 @@ class QuizGame:
             return raw
 
     # ---------- 메뉴 ----------
-    def show_menu(self):
+        def show_menu(self):
         print("\n===== 파이썬 기초 퀴즈 게임 =====")
         print("1. 퀴즈 풀기")
         print("2. 퀴즈 추가")
         print("3. 퀴즈 목록")
         print("4. 퀴즈 삭제")
         print("5. 점수 확인")
-        print("6. 종료")
-
+        print("6. 게임 기록")   # 추가
+        print("7. 종료")         # 변경: 6 → 7
     # ---------- 기능들 ----------
     def play_quiz(self):
         if not self.quizzes:
@@ -173,7 +179,7 @@ class QuizGame:
                     "정답 번호를 입력하세요 (1~4, 힌트=0): ", 0, 4)
                 if ans == 0:
                     if quiz.hint:
-                        print(f"💡 힌트: {quiz.hint}")
+                        print(f" 힌트: {quiz.hint}")
                         used_hint = True  # 힌트 사용 기록
                     else:
                         print("이 문제에는 힌트가 없습니다.")
@@ -192,11 +198,19 @@ class QuizGame:
 
         # 소수점이 .0이면 정수처럼 깔끔하게 출력
         score_str = int(score) if score == int(score) else score
-        print(f"\n총 {len(quizzes)}문제 중 {score_str}점을 얻었습니다!")  # len(quizzes)가 선택한 문제 수로 자동 반영됨
+        print(f"\n총 {len(quizzes)}문제 중 {score_str}점을 얻었습니다!")
         self.played = True
+
+        record = {
+            "datetime": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "count": len(quizzes),   # 푼 문제 수
+            "score": score,          # 획득 점수
+        }
+        self.history.append(record)
+
         if score > self.best_score:
             self.best_score = score
-            print("🎉 최고 점수를 갱신했습니다!")
+            print(" 최고 점수를 갱신했습니다!")
         self.save()
 
     def add_quiz(self):
@@ -256,13 +270,27 @@ class QuizGame:
         else:
             best = int(self.best_score) if self.best_score == int(self.best_score) else self.best_score
             print(f"현재 최고 점수: {best}점")
+        
 
+        def show_history(self):   # 추가: 전체 게임 기록 조회
+        """지금까지의 모든 게임 기록을 출력"""
+        if not self.history:
+            print("아직 게임 기록이 없습니다.")
+            return
+
+        print(f"\n===== 게임 기록 (총 {len(self.history)}회) =====")
+        for i, rec in enumerate(self.history, start=1):
+            # 점수 .0이면 정수처럼 깔끔하게
+            s = rec["score"]
+            s_str = int(s) if s == int(s) else s
+            print(f"{i}. {rec['datetime']} | "
+                  f"{rec['count']}문제 | {s_str}점")
     # ---------- 메인 루프 ----------
-    def run(self):
+        def run(self):
         while True:
             try:
                 self.show_menu()
-                choice = self.input_number("메뉴 선택 (1~6): ", 1, 6)
+                choice = self.input_number("메뉴 선택 (1~7): ", 1, 7)  # ★ 변경: 1~6 → 1~7
                 if choice == 1:
                     self.play_quiz()
                 elif choice == 2:
@@ -273,7 +301,9 @@ class QuizGame:
                     self.delete_quiz()
                 elif choice == 5:
                     self.show_score()
-                elif choice == 6:
+                elif choice == 6:                 # 추가
+                    self.show_history()           # 추가
+                elif choice == 7:                 # 변경: 6 → 7 (종료)
                     print("프로그램을 종료합니다. 안녕히 가세요!")
                     self.save()
                     break
