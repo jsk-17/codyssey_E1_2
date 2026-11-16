@@ -89,3 +89,156 @@ QuizGame	게임 전체 관리 (메뉴, 입출력, 파일 저장/불러오기)
 정답률(%) 표시: 기록에 score/count×100을 추가해 문제 수가 달라도 공정하게 비교
 기록 개수 제한: 최근 N개만 보관/표시
 난이도·카테고리: 퀴즈에 난이도 필드를 추가해 분류 출제
+
+## 실행 증빙 (평가 항목 #1)
+
+실제 실행 화면과 로그입니다.
+
+> ⚠️ 아래 스크린샷/로그는 직접 캡처해서 교체하세요.
+
+![실행 화면](./images/run.png)
+
+실행 로그 예시:
+```text
+$ python Quiz.py
+===== 파이썬 기초 퀴즈 게임 =====
+1. 퀴즈 풀기
+...
+(실제 실행 터미널 출력을 그대로 붙여넣기)
+```
+
+---
+
+## 원격 저장소 및 커밋 이력 (평가 항목 #5)
+
+- 원격 저장소: <https://github.com/사용자명/codyssey_E1_2>
+
+커밋 히스토리 (`git log --oneline`):
+```text
+$ git log --oneline
+(여기에 실제 git log --oneline 출력 10줄 이상 붙여넣기)
+```
+
+![커밋 히스토리](./docs/git_log.png)
+
+---
+
+## 브랜치 및 병합 이력 (평가 항목 #6)
+
+브랜치 전략과 병합 그래프입니다.
+
+```text
+$ git log --oneline --graph --all
+(여기에 실제 그래프 출력 붙여넣기)
+```
+
+![브랜치 그래프](./docs/git_graph.png)
+
+---
+
+## Clone / Pull 실습 (평가 항목 #7)
+
+```bash
+# 저장소 복제
+git clone https://github.com/사용자명/codyssey_E1_2.git
+cd codyssey_E1_2
+
+# 최신 변경사항 가져오기
+git pull origin main
+```
+
+![clone/pull 터미널](./docs/clone_pull.png)
+
+---
+
+## 커밋 규칙 (평가 항목 #12)
+
+### 커밋 단위
+- 하나의 논리적 변경 = 하나의 커밋 (기능 추가, 버그 수정, 리팩터링을 섞지 않음)
+- 작동하는 상태 단위로 커밋
+
+### 커밋 메시지 템플릿
+```text
+<타입>: <요약 (50자 이내)>
+
+<본문: 변경 이유와 내용 (선택)>
+```
+
+| 타입 | 의미 |
+|------|------|
+| feat | 새 기능 추가 |
+| fix | 버그 수정 |
+| docs | 문서 수정 |
+| refactor | 기능 변경 없는 코드 개선 |
+| test | 테스트 추가/수정 |
+| chore | 설정·기타 작업 |
+
+예시: `feat: 힌트 사용 시 0.5점 감점 로직 추가`
+
+---
+
+## 대량 데이터 성능 분석 (평가 항목 #16)
+
+퀴즈 수 N이 커질 때(예: N ≥ 1000)의 영향 분석입니다.
+
+| 작업 | 시간 복잡도 | 비고 |
+|------|------------|------|
+| 전체 로드 (json.load) | O(N) | 전체를 메모리에 적재 |
+| 메모리 사용 | O(N) | 모든 퀴즈 객체를 리스트로 보관 |
+| 퀴즈 목록 출력 | O(N) | 전체 순회 |
+| 랜덤 출제 | O(k) | k = 출제 문제 수 |
+| 퀴즈 삭제 (인덱스) | O(N) | 리스트 재구성 |
+| 저장 (json.dump) | O(N) | 전체 직렬화 |
+
+**병목**: 매 저장 시 전체 state.json을 다시 쓰므로 N이 커지면 I/O 비용 증가.
+
+**개선 방안**
+- 전체 JSON 대신 SQLite 등 DB로 전환해 인덱스 기반 조회·삭제 (O(log N))
+- 삭제 시 리스트 대신 dict(id→quiz) 사용으로 O(1) 삭제
+- 변경분만 저장하는 증분 저장 방식 도입
+
+> ⚠️ 가능하면 N=1000, 5000 등에서 실제 측정한 로드/저장 시간을 표로 추가하면 더 좋습니다.
+
+---
+
+## 백업 및 복구 절차 (평가 항목 #17)
+
+기존의 "손상 시 기본 데이터로 복구"에 더해 **백업 기반 복구**를 추가합니다.
+
+- 저장 시마다 직전 상태를 `state.json.bak`으로 보관
+- 로드 실패 시 순서: `state.json` → `state.json.bak` → 기본 퀴즈 데이터
+
+구현 예시:
+```python
+import json, os, shutil
+
+def save_state(self):
+    # 기존 파일을 백업으로 복사
+    if os.path.exists('state.json'):
+        shutil.copy('state.json', 'state.json.bak')  # 직전 버전 보존
+    with open('state.json', 'w', encoding='utf-8') as f:
+        json.dump(self.to_dict(), f, ensure_ascii=False, indent=2)
+
+def load_state(self):
+    for path in ('state.json', 'state.json.bak'):   # 본파일 → 백업 순으로 시도
+        try:
+            with open(path, encoding='utf-8') as f:
+                return json.load(f)
+        except (json.JSONDecodeError, KeyError, OSError):
+            continue
+    return get_default_quizzes()  # 모두 실패 시 기본 데이터
+```
+
+---
+
+## 요구 변경 시 영향 범위 (평가 항목 #18)
+
+요구사항이 바뀔 때 수정해야 할 대상을 정리합니다.
+
+| 변경 요구 | 영향 받는 부분 |
+|-----------|---------------|
+| 점수 규칙 변경 (예: 힌트 감점량) | `QuizGame`의 점수 계산 로직 |
+| 선택지 개수 변경 (4지→5지) | `Quiz` 모델, 입력 검증, 퀴즈 추가 메뉴 |
+| 저장 형식 변경 (JSON→DB) | `save_state`/`load_state`, state.json 구조 |
+| 기록 필드 추가 (정답률 등) | `history` 구조, 기록 조회 메뉴 |
+| 난이도/카테고리 도입 | `Quiz` 모델, 출제 로직, 추가 메뉴 |
