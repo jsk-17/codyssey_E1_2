@@ -100,11 +100,30 @@ QuizGame	게임 전체 관리 (메뉴, 입출력, 파일 저장/불러오기)
 
 실행 로그 예시:
 ```text
-$ python Quiz.py
+$ python quiz.py
+
 ===== 파이썬 기초 퀴즈 게임 =====
 1. 퀴즈 풀기
-...
-(실제 실행 터미널 출력을 그대로 붙여넣기)
+2. 퀴즈 추가
+3. 퀴즈 목록
+4. 퀴즈 삭제
+5. 점수 확인
+6. 게임 기록
+7. 종료
+메뉴 선택 (1~7): 1
+몇 문제를 푸시겠습니까? (1~6): 1
+
+문자열 타입을 나타내는 것은?
+  1. int
+  2. str
+  3. bool
+  4. float
+  (힌트 보기: 0 입력 / 정답 선택 전에만 가능)
+정답 번호를 입력하세요 (1~4, 힌트=0): 2
+✅ 정답입니다! (1.0점)
+
+총 1문제 중 1점을 얻었습니다!
+ 최고 점수를 갱신했습니다!
 ```
 
 ---
@@ -115,7 +134,17 @@ $ python Quiz.py
 커밋 히스토리 (`git log --oneline`):
 ```text
 $ git log --oneline
-(여기에 실제 git log --oneline 출력 10줄 이상 붙여넣기)
+$ git log --oneline
+5cfd34d (HEAD -> main, origin/main, origin/HEAD) docs: finalupdate
+723a2e2 docs: README UPDATE
+940f788 README UPDATE
+971bb48 README 추가
+8928263 게임 날짜 표기 기능추가
+c3630a4 문제 수 선택 기능 추가
+376c9b9 힌트 기능 구현 및 감점기능
+f937e00 퀴즈 삭제기능 추가
+79693c1 Merge branch 'main' of https://github.com/jsk-17/codyssey_E1_2
+8aa41ce 퀴즈 초안 러프본
 ```
 
 ![커밋 히스토리](./images/commit.png)
@@ -128,7 +157,17 @@ $ git log --oneline
 
 ```text
 $ git log --oneline --graph --all
-(여기에 실제 그래프 출력 붙여넣기)
+* 5cfd34d (HEAD -> main, origin/main, origin/HEAD) docs: finalupdate
+* 723a2e2 docs: README UPDATE
+* 940f788 README UPDATE
+* 971bb48 README 추가
+* 8928263 게임 날짜 표기 기능추가
+* c3630a4 문제 수 선택 기능 추가
+* 376c9b9 힌트 기능 구현 및 감점기능
+* f937e00 퀴즈 삭제기능 추가
+*   79693c1 Merge branch 'main' of https://github.com/jsk-17/codyssey_E1_2
+|\  
+| * 1d62101 Initial commit
 ```
 
 ![브랜치 그래프](./images/branch.png)
@@ -139,11 +178,14 @@ $ git log --oneline --graph --all
 
 ```bash
 # 저장소 복제
-git clone https://github.com/사용자명/codyssey_E1_2.git
+git clone https://github.com/jsk-17/codyssey_E1_2.git
 cd codyssey_E1_2
 
 # 최신 변경사항 가져오기
 git pull origin main
+From https://github.com/jsk-17/codyssey_E1_2
+ * branch            main       -> FETCH_HEAD
+Already up to date.
 ```
 
 ![clone/pull 터미널](./images/clone.png)

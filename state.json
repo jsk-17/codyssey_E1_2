@@ -1,0 +1,78 @@
+{
+  "quizzes": [
+    {
+      "question": "변수를 선언할 때 사용하는 올바른 방식은?",
+      "choices": [
+        "int x = 5",
+        "x = 5",
+        "var x = 5",
+        "x := 5"
+      ],
+      "answer": 2,
+      "hint": "Python은 타입을 명시하지 않아요."
+    },
+    {
+      "question": "다음 중 리스트(list)를 만드는 문법은?",
+      "choices": [
+        "{1, 2, 3}",
+        "(1, 2, 3)",
+        "[1, 2, 3]",
+        "<1, 2, 3>"
+      ],
+      "answer": 3,
+      "hint": "대괄호를 사용해요."
+    },
+    {
+      "question": "문자열 타입을 나타내는 것은?",
+      "choices": [
+        "int",
+        "str",
+        "bool",
+        "float"
+      ],
+      "answer": 2,
+      "hint": "string의 약자예요."
+    },
+    {
+      "question": "True/False 값을 가지는 자료형은?",
+      "choices": [
+        "int",
+        "list",
+        "bool",
+        "dict"
+      ],
+      "answer": 3,
+      "hint": "참/거짓을 표현해요."
+    },
+    {
+      "question": "반복 횟수가 정해졌을 때 주로 쓰는 반복문은?",
+      "choices": [
+        "while",
+        "for",
+        "if",
+        "def"
+      ],
+      "answer": 2,
+      "hint": "범위를 돌 때 자주 써요."
+    },
+    {
+      "question": "함수를 정의할 때 사용하는 키워드는?",
+      "choices": [
+        "func",
+        "function",
+        "def",
+        "lambda"
+      ],
+      "answer": 3,
+      "hint": "3글자 키워드예요."
+    }
+  ],
+  "best_score": 1.0,
+  "history": [
+    {
+      "datetime": "2026-11-16 18:05:13",
+      "count": 1,
+      "score": 1.0
+    }
+  ]
+}
