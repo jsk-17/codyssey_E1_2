@@ -118,7 +118,7 @@ $ git log --oneline
 (여기에 실제 git log --oneline 출력 10줄 이상 붙여넣기)
 ```
 
-![커밋 히스토리](./docs/git_log.png)
+![커밋 히스토리](./images/commit.png)
 
 ---
 
@@ -131,7 +131,7 @@ $ git log --oneline --graph --all
 (여기에 실제 그래프 출력 붙여넣기)
 ```
 
-![브랜치 그래프](./docs/git_graph.png)
+![브랜치 그래프](./images/branch.png)
 
 ---
 
